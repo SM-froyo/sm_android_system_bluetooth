@@ -16,6 +16,13 @@
  * 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA
  */
 
+/**
+ *
+ * Added some modifications to proper device initialization on Samsung i5700
+ * Don't use it on other devices
+ * Peter Nyilas
+ *
+ */
 
 /*****************************************************************************
 **                                                                           
