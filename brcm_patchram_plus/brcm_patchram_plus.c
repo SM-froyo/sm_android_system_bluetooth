@@ -106,6 +106,7 @@ int bdaddr_flag = 0;
 int enable_lpm = 0;
 int enable_hci = 0;
 int debug = 0;
+int failcount = 0;
 
 struct termios termios;
 unsigned char buffer[1024];
@@ -452,8 +453,14 @@ hci_send_cmd(unsigned char *buf, int len)
 void
 expired(int sig)
 {
-	hci_send_cmd(hci_reset, sizeof(hci_reset));
-	alarm(4);
+	failcount++;
+	if ( failcount < 5 )
+	{
+	    hci_send_cmd(hci_reset, sizeof(hci_reset));
+	    alarm(4);
+	} else {
+	    exit(1);
+	}
 }
 
 void
