@@ -335,12 +335,11 @@ parse_cmd_line(int argc, char **argv)
 }
 
 void
-reset_bt()
+bt_off()
 {
 	int btfd;
 	char *rfkill = "/sys/class/rfkill/rfkill0/state";
 	char *disable = "0";
-	char *enable = "1";
 	struct timespec req = {0};
 
 	req.tv_sec = 0;
@@ -355,6 +354,18 @@ reset_bt()
 	fputs(disable, btfd);
 	fclose(btfd);
 	nanosleep(&req, (struct timespec *)NULL);
+}
+
+void
+bt_on()
+{
+	int btfd;
+	char *rfkill = "/sys/class/rfkill/rfkill0/state";
+	char *enable = "1";
+	struct timespec req = {0};
+
+	req.tv_sec = 0;
+	req.tv_nsec = RFKILL_WAIT * 1000L;
 
 	btfd = fopen(rfkill, "w");
 	if (btfd == 0 ) {
@@ -365,6 +376,13 @@ reset_bt()
 	fputs(enable, btfd);
 	fclose(btfd);
 	nanosleep(&req, (struct timespec *)NULL);
+}
+
+void
+reset_bt()
+{
+	bt_off();
+	bt_on();
 }
 
 void
@@ -456,9 +474,11 @@ expired(int sig)
 	failcount++;
 	if ( failcount < 5 )
 	{
+	    reset_bt();
 	    hci_send_cmd(hci_reset, sizeof(hci_reset));
 	    alarm(4);
 	} else {
+	    bt_off();
 	    exit(1);
 	}
 }
@@ -603,7 +623,7 @@ main (int argc, char **argv)
 		exit(1);
 	}
 
-	reset_bt();
+	reset_bt(RFKILL_WAIT);
 
 	init_uart();
 
