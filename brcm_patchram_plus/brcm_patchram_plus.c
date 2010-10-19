@@ -623,7 +623,7 @@ main (int argc, char **argv)
 		exit(1);
 	}
 
-	reset_bt(RFKILL_WAIT);
+	reset_bt();
 
 	init_uart();
 
