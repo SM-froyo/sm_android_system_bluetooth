@@ -601,9 +601,22 @@ read_default_bdaddr()
 {
 	int sz;
 	int fd;
+	struct stat st;
 	char path[PROPERTY_VALUE_MAX];
 	char addr_from_ril[PROPERTY_VALUE_MAX];
 	char bdaddr[18];
+/*
+ *	We can get BT address from previously saved file
+ */
+	fd = open("/data/misc/bluetoothd/address", O_RDONLY);
+	if (fd > 0)
+	{
+		sz = read(fd, addr_from_ril, 12);
+		printf("Read default bdaddr from /data/misc/bluetoothd/address: %s\n", addr_from_ril);
+		close(fd);
+		parse_bdaddr2(addr_from_ril);
+		return;
+	}
 /*
  *	We can get BT address from ril
  */
@@ -612,7 +625,17 @@ read_default_bdaddr()
 	{
 		printf("Read default bdaddr from ril.bt_macaddr: %s\n", addr_from_ril);
 		parse_bdaddr2(addr_from_ril);
-		return;
+
+		if ( stat("/data/misc/bluetoothd", &st) == 0 )
+		{
+		    fd = open("/data/misc/bluetoothd/address", O_WRONLY|O_CREAT|O_TRUNC, S_IRUSR|S_IWUSR|S_IRGRP);
+		    if (fd > 0)
+		    {
+			write(fd, addr_from_ril, strlen(addr_from_ril));
+			close(fd);
+		    }
+		    return;
+		}
 	}
 /*
  *	Or we can get BT address from a file
