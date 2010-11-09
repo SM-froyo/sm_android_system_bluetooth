@@ -634,8 +634,8 @@ read_default_bdaddr()
 			write(fd, addr_from_ril, strlen(addr_from_ril));
 			close(fd);
 		    }
-		    return;
 		}
+		return;
 	}
 /*
  *	Or we can get BT address from a file
