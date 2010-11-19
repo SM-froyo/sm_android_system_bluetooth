@@ -604,7 +604,24 @@ read_default_bdaddr()
 	struct stat st;
 	char path[PROPERTY_VALUE_MAX];
 	char addr_from_ril[PROPERTY_VALUE_MAX];
+	char imei_bt[23];
 	char bdaddr[18];
+
+/*
+ *	We can get BT address from /efs (thanks qbanin)
+ */
+	fd = open("/efs/imei/bt.txt", O_RDONLY);
+	if (fd > 0)
+	{
+		sz = read(fd, imei_bt, 23);
+		strncpy(addr_from_ril, imei_bt+11, 12);
+		addr_from_ril[12] = 0;
+		printf("Read default bdaddr from /efs/imei/bt.txt: %s\n", addr_from_ril);
+		close(fd);
+		parse_bdaddr2(addr_from_ril);
+		return;
+	}
+
 /*
  *	We can get BT address from previously saved file
  */
